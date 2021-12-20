@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (empty($_SESSION['token'])) {
+    $_SESSION['token'] = bin2hex(random_bytes(32));
+}
+$token = $_SESSION['token'];
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,11 +43,12 @@
                 </div>
                 <div class="card-body">
                     <h5 class="card-title fw-bold" style="text-align: left;">บริการหลังการขาย</h5>
-                    <form id="form_submit">
+                    <form id="form_submit" name="form_submit">
 
                         <div class="row">
                             <div class="col-md-4"></div>
                             <div class="col-md-4" align="left">
+                                <input type="hidden" value="<?php echo $token ?>" name="token">
                                 <div>
                                     <input class="form-check-input border border-primary" type="checkbox" name="service[]" value="ลงทะเบียนรับประกันสินค้า" id="service1">
                                     <label class="form-check-label" for="service1">
@@ -78,21 +87,31 @@
                             <div class="col-md-1"></div>
                             <div class="col-md-10">
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control border border-primary" style placeholder="ชื่อ" required name="name">
+                                    <input type="text" class="form-control border border-primary" style placeholder="ชื่อ เช่น(สมศรี, สมชัย, สมชาย) เป็นต้น" required name="name">
+                                </div>
+                                <div align="left">
+                                    <span class="text-danger" id="error_name"></span>
                                 </div>
 
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control border border-primary" style placeholder="นามสกุล" required name="lastname">
+                                    <input type="text" class="form-control border border-primary" style placeholder="นามสกุล เช่น(รักดี, ดีใจ)เป็นต้น" required name="lastname">
                                 </div>
-
+                                <div align="left">
+                                    <span class="text-danger" id="error_lastname"></span>
+                                </div>
                                 <div class="input-group mb-3">
-                                    <input type="number" class="form-control border border-primary" style placeholder="หมายเลขโทรศัพท์ที่ติดต่อได้" required name="telephone">
+                                    <input type="number" class="form-control border border-primary" style placeholder="หมายเลขโทรศัพท์ที่ติดต่อได้10หลัก เช่น (0111111111)" required name="telephone">
                                 </div>
-
+                                <div align="left">
+                                    <span class="text-danger" id="error_telephone"></span>
+                                </div>
                                 <div class="input-group mb-3">
                                     <select class="form-control border border-primary select2" name="province" id="province">
                                         <option value="" selected disabled>จังหวัด</option>
                                     </select>
+                                </div>
+                                <div align="left">
+                                    <span class="text-danger" id="error_province"></span>
                                 </div>
                             </div>
                             <div class="col-md-1"></div>
@@ -122,6 +141,70 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
     <script>
+        function validateForm() {
+            clear_errors();
+            let name = document.forms["form_submit"]["name"].value;
+            let lastname = document.forms["form_submit"]["lastname"].value;
+            let telephone = document.forms["form_submit"]["telephone"].value;
+            let province = document.forms["form_submit"]["province"].value;
+            let chk = 0;
+            if (name.trim() == "" || name.length < 3 || name.length >= 50) {
+                $("#error_name").html("กรุณากรอกข้อมูล และตัวอักษรไม่น้อยกว่า 3 - 50 ตัวอักษร")
+                Swal.fire(
+                    'ไม่สำเร็จ!',
+                    'กรุณาตรวจสอบข้อมูลของท่านใหม่อีกครั้ง',
+                    'error'
+                )
+                chk += 1;
+            }
+            if (lastname.trim() == "" || lastname.length < 3 || lastname.length >= 50) {
+                $("#error_lastname").html("กรุณากรอกข้อมูล และตัวอักษรไม่น้อยกว่า 3 - 50 ตัวอักษร")
+                Swal.fire(
+                    'ไม่สำเร็จ!',
+                    'กรุณาตรวจสอบข้อมูลของท่านใหม่อีกครั้ง',
+                    'error'
+                )
+                chk += 1;
+
+            }
+
+            if (telephone.trim() == "" || telephone.length != 10) {
+                $("#error_telephone").html("กรุณากรอกข้อมูล และตัวอักษร 10 ตัวอักษร")
+                Swal.fire(
+                    'ไม่สำเร็จ!',
+                    'กรุณาตรวจสอบข้อมูลของท่านใหม่อีกครั้ง',
+                    'error'
+                )
+                chk += 1;
+
+            }
+
+            if (province.trim() == "") {
+                $("#error_province").html("กรุณาเลือกจังหวัด")
+                Swal.fire(
+                    'ไม่สำเร็จ!',
+                    'กรุณาตรวจสอบข้อมูลของท่านใหม่อีกครั้ง',
+                    'error'
+                )
+                chk += 1;
+
+            }
+
+            if (chk > 0) {
+                return false;
+            } else {
+                return true;
+            }
+
+        }
+
+        function clear_errors() {
+            $("#error_name").html("")
+            $("#error_lastname").html("")
+            $("#error_telephone").html("")
+            $("#error_province").html("")
+        }
+
         document.getElementById("btn_submit").addEventListener("click", function(event) {
             event.preventDefault()
             // console.log("ทดสอบ");
@@ -136,7 +219,7 @@
                 confirmButtonText: 'ตกลง',
                 cancelButtonText: "ยกเลิก"
             }).then((result) => {
-                if (result.isConfirmed) {
+                if (result.isConfirmed && validateForm()) {
                     var form = $('#form_submit')[0];
                     var data = new FormData(form);
                     let _url = "sent-email.php";
@@ -158,6 +241,7 @@
                                 'success'
                             )
 
+                            document.getElementById("form_submit").reset();
 
                         },
                         error: function(err) {
