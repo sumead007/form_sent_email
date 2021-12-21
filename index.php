@@ -33,13 +33,15 @@ $token = $_SESSION['token'];
 
 <body onload="get_province()">
 
-
+<br>
+<br>
+<br>
 
     <div class="container text-center d-flex align-items-center justify-content-center ">
         <div class="col-md-8 col-sm-10">
             <div class="card border-primary mb-3">
                 <div align="center" class="m-2">
-                    <img src="images/logo_forbes.PNG" class="card-img-top" alt="..." style="width: 30%;">
+                    <img src="images/logo_forbes.PNG" class="card-img-top" alt="..." style="width: 200px">
                 </div>
                 <div class="card-body">
                     <h5 class="card-title fw-bold" style="text-align: left;">บริการหลังการขาย</h5>
